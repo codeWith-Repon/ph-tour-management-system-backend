@@ -1,17 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import httpStaus from "http-status";
-import { User } from "./user.model";
+import { UserServices } from "./user.service";
 
 
 const createUser = async (req: Request, res: Response) => {
     try {
-        const { name, email } = req.body;
-
-        const user = await User.create({
-            name,
-            email
-        })
+        const user = await UserServices.createUser(req.body)
 
         res.status(httpStaus.CREATED).json({
             message: "User Created Successfully",
