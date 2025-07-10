@@ -1,27 +1,32 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import httpStaus from "http-status";
 import { UserServices } from "./user.service";
-// import AppError from "../../errorHelpers/AppError";
+import { catchAsync } from "../../utils/catchAsync";
 
 
-const createUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        // throw new Error ("Fake error")
-        // throw new AppError(httpStaus.BAD_REQUEST,"fake error")
-        const user = await UserServices.createUser(req.body)
+const createUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-        res.status(httpStaus.CREATED).json({
-            message: "User Created Successfully",
-            user
-        })
-    } catch (error: any) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-        next(error)
-    }
+    const user = await UserServices.createUser(req.body)
+
+    res.status(httpStaus.CREATED).json({
+        message: "User Created Successfully",
+        user
+    })
+})
+
+const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const users = await UserServices.getAllUsers()
+
+    res.status(httpStaus.OK).json({
+        success: true,
+        message: "All Users Retrieved successfylly",
+        data: users
+    })
 }
-
+)
 export const UserControllers = {
-    createUser
+    createUser,
+    getAllUsers
 }
