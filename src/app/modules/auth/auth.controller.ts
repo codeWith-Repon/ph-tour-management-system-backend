@@ -6,6 +6,9 @@ import httpStatus from 'http-status'
 import { AuthSerices } from './auth.service'
 import AppError from '../../errorHelpers/AppError'
 import { setAuthCookie } from '../../utils/setCookie'
+import { createUserToken } from '../../utils/userToken'
+import { envVars } from '../../../config/env'
+import { JwtPayload } from 'jsonwebtoken'
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
@@ -69,7 +72,7 @@ const resetPassword = catchAsync(async (req: Request, res: Response, next: NextF
     const oldPassword = req.body.oldPassword
     const decodedToken = req.user;
 
-    await AuthSerices.resetPassword(oldPassword, newPassword, decodedToken)
+    await AuthSerices.resetPassword(oldPassword, newPassword, decodedToken as JwtPayload)
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
@@ -78,9 +81,33 @@ const resetPassword = catchAsync(async (req: Request, res: Response, next: NextF
     })
 })
 
+const googleCallbackController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const user = req.user
+
+    if (!user) {
+        throw new AppError(httpStatus.NOT_FOUND, "User Not Found")
+    }
+
+    const tokenInfo = createUserToken(user)
+
+    setAuthCookie(res, tokenInfo)
+
+    // sendResponse(res, {
+    //     success: true,
+    //     statusCode: httpStatus.OK,
+    //     message: "Password Changed Successfully",
+    //     data: null
+    // })
+
+    res.redirect(envVars.FRONTEND_URL)
+})
+
+
 export const AuthControllers = {
     credentialsLogin,
     getNewAccessToken,
     logOut,
-    resetPassword
+    resetPassword,
+    googleCallbackController
 }
