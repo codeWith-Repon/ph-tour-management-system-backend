@@ -18,7 +18,7 @@ passport.use(
                 const email = profile.emails?.[0].value;
 
                 if (!email) {
-                    return done(null, false, { mesaage: "No email found" })
+                    return done(null, false, { message: "No email found" })
                 }
 
                 let user = await User.findOne({ email })
