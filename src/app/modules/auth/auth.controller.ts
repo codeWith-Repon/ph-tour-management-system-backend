@@ -36,12 +36,35 @@ const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: N
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
-        message: "User Loged In Successfully",
+        message: "New Access Token Retrived Successfully",
         data: tokenInfo
+    })
+})
+
+const logOut = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    })
+
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
+    })
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "User Log Out Successfully",
+        data: null
     })
 })
 
 export const AuthControllers = {
     credentialsLogin,
-    getNewAccessToken
+    getNewAccessToken,
+    logOut
 }
