@@ -6,7 +6,7 @@ import bcryptjs from 'bcryptjs'
 import { createNewAccessTokenWitRefreshToken, createUserToken } from "../../utils/userToken";
 import { IUser } from "../user/user.interface";
 import { JwtPayload } from "jsonwebtoken";
-import { envVars } from "../../../config/env";
+import { envVars } from "../../config/env";
 
 const credentialsLogin = async (payload: Partial<IUser>) => {
     const { email, password } = payload;

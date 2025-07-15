@@ -7,7 +7,7 @@ import { AuthSerices } from './auth.service'
 import AppError from '../../errorHelpers/AppError'
 import { setAuthCookie } from '../../utils/setCookie'
 import { createUserToken } from '../../utils/userToken'
-import { envVars } from '../../../config/env'
+import { envVars } from '../../config/env'
 import { JwtPayload } from 'jsonwebtoken'
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

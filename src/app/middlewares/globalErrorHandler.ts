@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express"
-import { envVars } from "../../config/env"
+import { envVars } from "../config/env"
 import AppError from "../errorHelpers/AppError"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
