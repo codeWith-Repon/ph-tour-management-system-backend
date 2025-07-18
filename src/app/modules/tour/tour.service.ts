@@ -94,31 +94,40 @@ const getAllTours = async (query: Record<string, string>) => {
         ))
     }
 
-    // const tours = await Tour.find({
-    //     // title: { $regex: searchTerm, $options: "i" }
+    // way - 01
 
-    //     // $or: [
-    //     //     { title: { $regex: searchTerm, $options: "i" } },
-    //     //     { description: { $regex: searchTerm, $options: "i" } },
-    //     //     { location: { $regex: searchTerm, $options: "i" } },
-    //     // ]
+    // const tours = await Tour
+    //     .find(searchQuery).
+    //     find(filter)
+    // .sort(sort)
+    // .select(fields)
+    // .skip(skip)
+    // .limit(limit);
 
-    // })
+    // way - 02
 
-    const tours = await Tour
-        .find(searchQuery).
-        find(filter)
+    const filterQuery = Tour.find(filter)
+    const searchData = filterQuery.find(searchQuery)
+    const tours = await searchData
         .sort(sort)
         .select(fields)
         .skip(skip)
         .limit(limit);
+
     const totalTours = await Tour.countDocuments()
+
+    const totalPage = Math.ceil(totalTours / limit)
+
+    const meta = {
+        page: page,
+        limit: limit,
+        total: totalTours,
+        totalPage
+    }
 
     return {
         data: tours,
-        meta: {
-            total: totalTours
-        }
+        meta
     }
 }
 
