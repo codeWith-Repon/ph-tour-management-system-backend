@@ -75,7 +75,7 @@ const getAllTours = catchAsync(async (req: Request, res: Response) => {
     const result = await tourService.getAllTours(query as Record<string, string>)
 
     sendResponse(res, {
-        statusCode: 201,
+        statusCode: 200,
         success: true,
         message: "Tour retrieved successfully",
         meta: result.meta,
@@ -88,7 +88,7 @@ const updateTour = catchAsync(async (req: Request, res: Response) => {
     const result = await tourService.updateTour(id, req.body)
 
     sendResponse(res, {
-        statusCode: 201,
+        statusCode: 200,
         success: true,
         message: "Tour updated successfully",
         data: result
@@ -100,7 +100,7 @@ const deleteTour = catchAsync(async (req: Request, res: Response) => {
     const result = await tourService.deleteTour(id)
 
     sendResponse(res, {
-        statusCode: 201,
+        statusCode: 200,
         success: true,
         message: "Tour deleted successfully",
         data: result
