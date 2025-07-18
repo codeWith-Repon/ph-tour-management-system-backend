@@ -53,15 +53,15 @@ const createTour = async (payload: ITour) => {
     }
 
 
-    const baseSlug = payload.title.toLowerCase().split(" ").join("-")
-    let slug = `${baseSlug}`
+    // const baseSlug = payload.title.toLowerCase().split(" ").join("-")
+    // let slug = `${baseSlug}`
 
-    let counter = 0;
+    // let counter = 0;
 
-    while (await Tour.exists({ slug })) {
-        slug = `${slug}-${counter++}`
-    }
-    payload.slug = slug;
+    // while (await Tour.exists({ slug })) {
+    //     slug = `${slug}-${counter++}`
+    // }
+    // payload.slug = slug;
 
     const tour = await Tour.create(payload)
 
@@ -84,17 +84,15 @@ const updateTour = async (id: string, payload: Partial<ITour>) => {
     const existingTour = await Tour.findById(id)
     if (!existingTour) throw new Error("Tour not found.")
 
-    if (!payload.title) return
+    // const baseSlug = payload.title.toLowerCase().split(" ").join("-")
+    // let slug = `${baseSlug}`
 
-    const baseSlug = payload.title.toLowerCase().split(" ").join("-")
-    let slug = `${baseSlug}`
+    // let counter = 0;
 
-    let counter = 0;
-
-    while (await Tour.exists({ slug })) {
-        slug = `${slug}-${counter++}`
-    }
-    payload.slug = slug;
+    // while (await Tour.exists({ slug })) {
+    //     slug = `${slug}-${counter++}`
+    // }
+    // payload.slug = slug;
 
     const updatedTour = await Tour.findByIdAndUpdate(id, payload, { new: true, runValidators: true })
 
