@@ -73,7 +73,8 @@ const createTour = async (payload: ITour) => {
 const getAllTours = async (query: Record<string, string>) => {
     const filter = query;
     const searchTerm = query.searchTerm || "";
-    const sort = query.sort || "-createdAt"
+    const sort = query.sort || "-createdAt";
+    const fields = query.fields.split(",").join(" ") || ""
 
     // delete filter["searchTerm"]
     // delete filter["sort"]
@@ -101,7 +102,7 @@ const getAllTours = async (query: Record<string, string>) => {
 
     // })
 
-    const tours = await Tour.find(searchQuery).find(filter).sort(sort)
+    const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields);
     const totalTours = await Tour.countDocuments()
 
     return {
