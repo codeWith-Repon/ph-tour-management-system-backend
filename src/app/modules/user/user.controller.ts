@@ -47,7 +47,8 @@ const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunc
 
 const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    const result = await UserServices.getAllUsers()
+    const query = req.query
+    const result = await UserServices.getAllUsers(query as Record<string, string>)
 
     // res.status(httpStaus.OK).json({
     //     success: true,
@@ -64,8 +65,25 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFun
     })
 }
 )
+
+const getSingleUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const { id } = req.params
+    const result = await UserServices.getSingleUser(id)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStaus.CREATED,
+        message: "Users Retrieved successfylly",
+        data: result.data,
+    })
+}
+)
+
+
 export const UserControllers = {
     createUser,
     updateUser,
-    getAllUsers
+    getAllUsers,
+    getSingleUser
 }
