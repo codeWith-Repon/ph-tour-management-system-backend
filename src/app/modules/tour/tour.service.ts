@@ -1,4 +1,4 @@
-import { excludeField } from "../../constants";
+import { QueryBuilder } from "../../utils/QueryBuilder";
 import { tourSearchableFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
@@ -70,66 +70,91 @@ const createTour = async (payload: ITour) => {
     return tour
 }
 
+
 const getAllTours = async (query: Record<string, string>) => {
-    const filter = query;
-    const searchTerm = query.searchTerm || "";
-    const sort = query.sort || "-createdAt";
-    const fields = query.fields?.split(",").join(" ") || ""
-    const page = Number(query.page) || 1;
-    const limit = Number(query.limit) || 10;
-    const skip = (page - 1) * limit
 
-    // delete filter["searchTerm"]
-    // delete filter["sort"]
+    const queryBuilder = new QueryBuilder(Tour.find(), query)
 
+    const tours = await queryBuilder
+        .search(tourSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate()
+    // .build()
 
-    for (const field of excludeField) {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete filter[field]
-    }
-
-    const searchQuery = {
-        $or: tourSearchableFields.map((field) => (
-            { [field]: { $regex: searchTerm, $options: "i" } }
-        ))
-    }
-
-    // way - 01
-
-    // const tours = await Tour
-    //     .find(searchQuery).
-    //     find(filter)
-    // .sort(sort)
-    // .select(fields)
-    // .skip(skip)
-    // .limit(limit);
-
-    // way - 02
-
-    const filterQuery = Tour.find(filter)
-    const searchData = filterQuery.find(searchQuery)
-    const tours = await searchData
-        .sort(sort)
-        .select(fields)
-        .skip(skip)
-        .limit(limit);
-
-    const totalTours = await Tour.countDocuments()
-
-    const totalPage = Math.ceil(totalTours / limit)
-
-    const meta = {
-        page: page,
-        limit: limit,
-        total: totalTours,
-        totalPage
-    }
+    // const meta = await queryBuilder.getMeta()
+    const [data, meta] = await Promise.all([
+        tours.build(),
+        queryBuilder.getMeta()
+    ])
 
     return {
-        data: tours,
+        data,
         meta
     }
 }
+
+// const getAllTours = async (query: Record<string, string>) => {
+//     const filter = query;
+//     const searchTerm = query.searchTerm || "";
+//     const sort = query.sort || "-createdAt";
+//     const fields = query.fields?.split(",").join(" ") || ""
+//     const page = Number(query.page) || 1;
+//     const limit = Number(query.limit) || 10;
+//     const skip = (page - 1) * limit
+
+//     // delete filter["searchTerm"]
+//     // delete filter["sort"]
+
+
+//     for (const field of excludeField) {
+//         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+//         delete filter[field]
+//     }
+
+//     const searchQuery = {
+//         $or: tourSearchableFields.map((field) => (
+//             { [field]: { $regex: searchTerm, $options: "i" } }
+//         ))
+//     }
+
+//     // way - 01
+
+//     // const tours = await Tour
+//     //     .find(searchQuery).
+//     //     find(filter)
+//     // .sort(sort)
+//     // .select(fields)
+//     // .skip(skip)
+//     // .limit(limit);
+
+//     // way - 02
+
+//     const filterQuery = Tour.find(filter)
+//     const searchData = filterQuery.find(searchQuery)
+//     const tours = await searchData
+//         .sort(sort)
+//         .select(fields)
+//         .skip(skip)
+//         .limit(limit);
+
+//     const totalTours = await Tour.countDocuments()
+
+//     const totalPage = Math.ceil(totalTours / limit)
+
+//     const meta = {
+//         page: page,
+//         limit: limit,
+//         total: totalTours,
+//         totalPage
+//     }
+
+//     return {
+//         data: tours,
+//         meta
+//     }
+// }
 
 const updateTour = async (id: string, payload: Partial<ITour>) => {
     const existingTour = await Tour.findById(id)
