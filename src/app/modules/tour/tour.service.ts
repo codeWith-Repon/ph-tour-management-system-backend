@@ -1,5 +1,5 @@
 import { QueryBuilder } from "../../utils/QueryBuilder";
-import { tourSearchableFields } from "./tour.constant";
+import { tourSearchableFields, tourTypeSearchableFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
 
@@ -12,18 +12,29 @@ const createTourType = async (payload: ITourType) => {
     return await TourType.create(payload)
 }
 
-const getAllTourTypes = async () => {
-    const allTourTypes = await TourType.find({});
-    const totalTypes = await TourType.countDocuments();
+const getAllTourTypes = async (query: Record<string, string>) => {
+    const queryBuilder = new QueryBuilder(TourType.find(), query)
+
+    const tourTypes = await queryBuilder
+        .search(tourTypeSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate()
+
+    const [data, meta] = await Promise.all([
+        tourTypes.build(),
+        queryBuilder.getMeta()
+    ])
+
+
     return {
-        data: allTourTypes,
-        meta: {
-            total: totalTypes
-        }
+        data,
+        meta
     }
 }
 
-const getTourTypeById = async (id: string) => {
+const getSingleTourType = async (id: string) => {
     const tourType = await TourType.findById(id);
     if (!tourType) throw new Error("Tour type not found")
     return {
@@ -70,6 +81,12 @@ const createTour = async (payload: ITour) => {
     return tour
 }
 
+const getSingleTour = async (slug: string) => {
+    const tour = await Tour.findOne({ slug })
+    return {
+        data: tour
+    }
+}
 
 const getAllTours = async (query: Record<string, string>) => {
 
@@ -188,10 +205,11 @@ const deleteTour = async (id: string) => {
 export const tourService = {
     createTourType,
     getAllTourTypes,
-    getTourTypeById,
+    getSingleTourType,
     updateTourType,
     deleteTourType,
     createTour,
+    getSingleTour,
     getAllTours,
     updateTour,
     deleteTour
