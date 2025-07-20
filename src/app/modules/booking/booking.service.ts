@@ -15,44 +15,57 @@ const getTransactionId = () => {
 const createBooking = async (payload: Partial<IBooking>, userId: string) => {
     const transactionId = getTransactionId()
 
-    const user = await User.findById(userId)
+    const session = await Booking.startSession();
+    session.startTransaction()
 
-    if (!user?.phone || !user.address) {
-        throw new AppError(httpstatus.BAD_REQUEST, "Please Update Your Profile to Book a Tour.")
+    try {
+        const user = await User.findById(userId)
+
+        if (!user?.phone || !user.address) {
+            throw new AppError(httpstatus.BAD_REQUEST, "Please Update Your Profile to Book a Tour.")
+        }
+
+        const tour = await Tour.findById(payload.tour).select("costForm")
+
+        if (!tour?.costForm) {
+            throw new AppError(httpstatus.BAD_REQUEST, "No Tour Cost Found!")
+        }
+
+        const amount = Number(tour.costForm) * Number(payload.guestCount)
+
+        const booking = await Booking.create([{
+            user: userId,
+            status: BOOKING_STATUS.PENDING,
+            ...payload
+        }], { session })
+
+        const payment = await Payment.create([
+            {
+                booking: booking[0]._id,
+                transactionId: transactionId,
+                status: PAYMENT_STATUS.UNPAID,
+                amount: amount
+            }
+        ], { session })
+
+        const updatedBooking = await Booking
+            .findByIdAndUpdate(
+                booking[0]._id,
+                { payment: payment[0]._id },
+                { new: true, runValidators: true, session }
+            )
+            .populate("user", "name email phone address")
+            .populate("tour", "title costForm")
+            .populate("payment")
+        await session.commitTransaction();
+        session.endSession()
+        return updatedBooking
+    } catch (error) {
+        await session.abortTransaction()
+        session.endSession()
+        // throw new AppError(httpStatus.BAD_REQUEST, error) ❌❌❌
+        throw error
     }
-
-    const tour = await Tour.findById(payload.tour).select("costForm")
-
-    if (!tour?.costForm) {
-        throw new AppError(httpstatus.BAD_REQUEST, "No Tour Cost Found!")
-    }
-
-    const amount = Number(tour.costForm) * Number(payload.guestCount)
-
-    const booking = await Booking.create({
-        user: userId,
-        status: BOOKING_STATUS.PENDING,
-        ...payload
-    })
-
-    const payment = await Payment.create({
-        booking: booking._id,
-        transactionId: transactionId,
-        status: PAYMENT_STATUS.UNPAID,
-        amount: amount
-    })
-
-    const updatedBooking = await Booking
-        .findByIdAndUpdate(
-            booking._id,
-            { payment: payment._id },
-            { new: true, runValidators: true }
-        )
-        .populate("user", "name email phone address")
-        .populate("tour", "title costForm")
-        .populate("payment")
-
-    return updatedBooking
 }
 
 const getUserBookings = async () => {
