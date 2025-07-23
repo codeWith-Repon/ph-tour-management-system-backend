@@ -7,24 +7,30 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinaryUpload,
     params: {
         public_id: (req, file) => {
-            // My Special.Image#!@.png => 4545adsfsadf-45324263452-my-image.png
-            // My Special.Image#!@.png => [My Special, Image#!@, png]
 
-            const fileName = file.originalname
-                .toLowerCase()
-                .replace(/\s+/g, "-")  // empty space remove replace with dash
-                .replace(/\./g, "-")    // . replace with dash
+            const originalName = file.originalname.toLowerCase(); //// e.g., "My Special.Image#!@.png"
+
+            // Split the filename into name and extension parts
+            const nameParts = originalName.split(".");
+            const extension = nameParts.pop(); // Remove and store the last part (e.g., "png")
+           
+            // Join the remaining parts with dash (e.g., ["my", "special", "image"] => "my-special-image")
+            const nameWithoutExtension = nameParts
+                .join("-")                          // Join parts with dash
+                .replace(/\s+/g, "-")              // Replace spaces with dash
                 // eslint-disable-next-line no-useless-escape
-                .replace(/[^a-z0-9\-\.]/g, "") // non alpha numeric - !@#$
+                .replace(/[^a-z0-9\-]/g, "");      // Remove all non-alphanumeric except dash
 
-            const extension = file.originalname.split(".").pop()
+            // Generate a unique filename using base36 random string and timestamp
+            const randomPart = Math.random().toString(36).substring(2); // random: "x8kasd"
+            const timestamp = Date.now();                               // current time in ms
+            const uniqueFileName = `${randomPart}-${timestamp}-${nameWithoutExtension}.${extension}`;
 
-            // binary -> 0,1 hexa decimal -> 0-9 A-F base 36 -> 0-9 a-z
-            // 0.2312345121 -> "0.hedfa674338sasfamx" -> 
+            // ✅ Example Output:
+            // Input: "My Special.Image#!@.png"
+            // Output: "x8kasd-1753278001234-my-special-image.png"
 
-            const uniqueFileName = Math.random().toString(36).substring(2) + "-" + Date.now() + "-" + fileName + "." + extension
-
-            return uniqueFileName
+            return uniqueFileName;
         }
     }
 })
