@@ -19,12 +19,12 @@ const createUser = async (payload: Partial<IUser>) => {
 
     const hashedPassword = await bcryptjs.hash(password as string, Number(envVars.BCRYPT_SALT_ROUND))
 
-    const authProvider: IAuthProvider = { provider: "creentials", providerID: email as string }
+    const authProvider: IAuthProvider = { provider: "credentials", providerId: email as string }
 
     const user = await User.create({
         email,
         password: hashedPassword,
-        auth: [authProvider],
+        auths: [authProvider],
         ...rest
     })
 
@@ -95,8 +95,15 @@ const getAllUsers = async (query: Record<string, string>) => {
     }
 }
 
+const getMe = async (userId: string) => {
+    const user = await User.findById(userId).select("-password")
+
+    return {
+        data: user
+    }
+}
 const getSingleUser = async (id: string) => {
-    const user = await User.findById(id)
+    const user = await User.findById(id).select("-password")
 
     return {
         data: user
@@ -107,5 +114,6 @@ export const UserServices = {
     createUser,
     getAllUsers,
     getSingleUser,
+    getMe,
     updateUser
 }

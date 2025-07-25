@@ -3,7 +3,7 @@ import { IAuthProvider, IsActive, IUser, Role } from "./user.interface";
 
 const authProviderSchema = new Schema<IAuthProvider>({
     provider: { type: String, required: true },
-    providerID: { type: String, required: true }
+    providerId: { type: String, required: true }
 }, {
     _id: false,
     versionKey: false
@@ -28,7 +28,7 @@ const userSchema = new Schema<IUser>({
         default: IsActive.ACTIVE
     },
     isVerified: { type: Boolean, default: false },
-    auth: [authProviderSchema]
+    auths: [authProviderSchema]
 }, {
     timestamps: true,
     versionKey: false

@@ -99,17 +99,58 @@ const logOut = catchAsync(async (req: Request, res: Response, next: NextFunction
     })
 })
 
-const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const changePassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const newPassword = req.body.newPassword;
     const oldPassword = req.body.oldPassword
     const decodedToken = req.user;
 
-    await AuthSerices.resetPassword(oldPassword, newPassword, decodedToken as JwtPayload)
+    await AuthSerices.changePassword(oldPassword, newPassword, decodedToken as JwtPayload)
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
         message: "Password Changed Successfully",
+        data: null
+    })
+})
+
+const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const decodedToken = req.user
+    
+    await AuthSerices.resetPassword(req.body, decodedToken as JwtPayload)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Password reset Successfully",
+        data: null,
+    })
+})
+
+const setPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const decodedToken = req.user as JwtPayload;
+    const { password } = req.body
+
+    await AuthSerices.setPassword(decodedToken.userId, password)
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Password Set Successfully",
+        data: null
+    })
+})
+
+const forgotPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const { email } = req.body
+
+    await AuthSerices.forgotPassword(email)
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Email Sent Successfully",
         data: null
     })
 })
@@ -149,6 +190,9 @@ export const AuthControllers = {
     credentialsLogin,
     getNewAccessToken,
     logOut,
+    changePassword,
     resetPassword,
+    setPassword,
+    forgotPassword,
     googleCallbackController
 }
