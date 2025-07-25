@@ -36,7 +36,7 @@ export const sendEmail = async ({
     attachments
 }: SendEmailOptions) => {
     try {
-        const templatePath = path.join(__dirname, `templates/${templateName}`)
+        const templatePath = path.join(__dirname, `templates/${templateName}.ejs`)
         const html = await ejs.renderFile(templatePath, templateData)
         const info = await transporter.sendMail({
             from: envVars.EMAIL_SENDER.SMTP_FROM,
