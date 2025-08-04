@@ -152,6 +152,11 @@ const changePassword = async (oldPassword: string, newPassword: string, decodedT
         throw new AppError(httpStatus.UNAUTHORIZED, "Old Password does not match")
     }
 
+    const isSameAsOld = await bcryptjs.compare(newPassword, user!.password as string)
+
+    if (isSameAsOld) {
+        throw new AppError(httpStatus.BAD_REQUEST, "New password cannot be same as old password.")
+    }
     user!.password = await bcryptjs.hash(newPassword, Number(envVars.BCRYPT_SALT_ROUND))
 
     user!.save();
