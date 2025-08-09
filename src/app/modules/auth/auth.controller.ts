@@ -41,8 +41,8 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
 
         const { password: pass, ...rest } = user.toObject()
 
-        setAuthCookie(res, rest)
-
+        setAuthCookie(res, userToken)
+    
         sendResponse(res, {
             success: true,
             statusCode: httpStatus.OK,
@@ -117,7 +117,7 @@ const changePassword = catchAsync(async (req: Request, res: Response, next: Next
 const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const decodedToken = req.user
-    
+
     await AuthSerices.resetPassword(req.body, decodedToken as JwtPayload)
 
     sendResponse(res, {
