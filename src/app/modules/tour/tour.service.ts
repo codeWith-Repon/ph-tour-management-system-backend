@@ -1,4 +1,5 @@
 import { deleteImageFromCloudinary } from "../../config/cloudinary.config";
+import AppError from "../../errorHelpers/AppError";
 import { QueryBuilder } from "../../utils/QueryBuilder";
 import { tourSearchableFields, tourTypeSearchableFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
@@ -8,7 +9,9 @@ import { Tour, TourType } from "./tour.model";
 const createTourType = async (payload: ITourType) => {
     const existingTourType = await TourType.findOne({ name: payload.name })
 
-    if (existingTourType) throw new Error("Tour type already exists")
+    if (existingTourType) {
+        throw new AppError(401, "Tour Type Already Exists!!")
+    }
 
     return await TourType.create(payload)
 }
